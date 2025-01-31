@@ -1,0 +1,21 @@
+name: CD Pipeline (Render + Docker)
+on:
+  workflow_run:
+    workflows: ["CI Pipeline (Docker)"]
+    branches: [main]
+    types: [completed]
+
+jobs:
+  deploy-render:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to Render
+        uses: render-actions/deploy@v1
+        with:
+          service-id: ${{ secrets.RENDER_SERVICE_ID }}
+          api-key: ${{ secrets.RENDER_API_KEY }}
+          docker-image: ghcr.io/${{ github.repository }}:${{ github.sha }}
